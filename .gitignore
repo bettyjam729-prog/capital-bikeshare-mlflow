@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+mlflow.db
+mlruns/
+mlartifacts/
+.env
+outputs/report.json
