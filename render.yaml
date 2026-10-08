@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: capital-bikeshare-mlflow
+    runtime: docker
+    plan: free
+    autoDeployTrigger: off
+    envVars:
+      - key: MLFLOW_AUTH_ADMIN_PASSWORD
+        sync: false
+      - key: MLFLOW_FLASK_SERVER_SECRET_KEY
+        generateValue: true
