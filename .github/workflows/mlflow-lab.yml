@@ -1,0 +1,38 @@
+name: MLflow Bike Demand Lab
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Download UCI data
+        run: python download_data.py
+      - name: Track experiments and train models
+        run: python train_bike_demand.py
+      - name: Register and verify selected model
+        run: python verify_bike_registry.py
+      - name: Upload reproducible MLflow evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capital-bikeshare-mlflow-results
+          path: |
+            outputs/
+            mlflow.db
+            mlartifacts/
+          if-no-files-found: warn
+          retention-days: 30
