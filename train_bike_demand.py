@@ -82,6 +82,9 @@ def main():
             estimator.fit(train[FEATURES], train["cnt"])
             metrics = score(validation["cnt"], estimator.predict(validation[FEATURES]))
             baseline = score(validation["cnt"], validation["lag_2"])
+            mlflow.set_tags({"project": "Capital Bikeshare", "stage": "validation", "model_family": name})
+            mlflow.log_input(mlflow.data.from_pandas(train[FEATURES + ["cnt"]], name="training-data", targets="cnt"), context="training")
+            mlflow.log_input(mlflow.data.from_pandas(validation[FEATURES + ["cnt"]], name="validation-data", targets="cnt"), context="validation")
             mlflow.log_params({
                 "model": name, "features": ",".join(FEATURES),
                 "split": "chronological", "target_day_lag": 2,
@@ -126,6 +129,9 @@ def main():
     }
 
     with mlflow.start_run(run_name=f"FINAL_{winner['model']}") as run:
+        mlflow.set_tags({"project": "Capital Bikeshare", "stage": "holdout", "selected_model": winner["model"]})
+        mlflow.log_input(mlflow.data.from_pandas(development[FEATURES + ["cnt"]], name="final-training-data", targets="cnt"), context="training")
+        mlflow.log_input(mlflow.data.from_pandas(test[FEATURES + ["cnt"]], name="holdout-test-data", targets="cnt"), context="testing")
         mlflow.log_params({
             "model": winner["model"], "selected_from_run": winner["run_id"],
             "features": ",".join(FEATURES), "train_rows": len(development),
